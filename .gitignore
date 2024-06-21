@@ -1,0 +1,37 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Output of the Go compiler
+*.o
+*.a
+*.out
+
+# Vendor directory
+/vendor/
+
+# Dependencies
+vendor/
+
+# Environment variables file
+.env
+
+# IDE/editor directories and files
+.idea/
+.vscode/
+*.swp
+*~
+
+# Logs
+*.log
+
+# Temporary files
+tmp/
+*.tmp
+
+# Build directories
+bin/
+build/
