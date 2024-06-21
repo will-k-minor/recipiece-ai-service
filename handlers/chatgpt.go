@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"recipiece-ai-service/clients"
-
 	"github.com/go-chi/chi/v5"
 )
 
