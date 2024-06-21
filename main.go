@@ -19,7 +19,11 @@ func main() {
     router.Use(middleware.Logger);
 
     router.Post("/hello", handlers.HelloHandler);
-    router.Post("/threads/create", handlers.ChatHandler);
+    router.Post("/threads/create", handlers.CreateThread);
+    router.Post("/threads/send-message", handlers.SendMessageToThread);
+    router.Post("/threads/run", handlers.RunAssistant);
+
+    router.Get("/threads/{threadId}/messages", handlers.GetMessagesFromThread);
 
     log.Fatal(http.ListenAndServe(":8080", router));
 }

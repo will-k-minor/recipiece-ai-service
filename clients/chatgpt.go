@@ -88,3 +88,76 @@ func (c *ChatGPTClient) CreateThread(message string) (map[string]interface{}, er
 
     return apiResponse, nil
 }
+
+func (c *ChatGPTClient) CreateMessage(threadId, message string) (map[string]interface{}, error) {
+	requestBody := map[string]interface{}{
+		"role": "user",
+		"content": message,
+	}
+
+	req, err := c.newRequest("POST", "/threads/" + threadId + "/messages", requestBody)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := c.client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	var apiResponse map[string]interface{}
+	err = json.NewDecoder(resp.Body).Decode(&apiResponse)
+	if err != nil {
+		return nil, err
+	}
+
+	return apiResponse, nil
+}
+
+func (c *ChatGPTClient) RunAssistant(threadId string) (map[string]interface{}, error) {
+	assistantId := os.Getenv("CLAUDE_ASSISTANT_ID")
+	requestBody := map[string]interface{}{
+		"assistant_id": assistantId,
+	}
+
+	req, err := c.newRequest("POST", "/threads/" + threadId + "/runs", requestBody)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := c.client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	var apiResponse map[string]interface{}
+	err = json.NewDecoder(resp.Body).Decode(&apiResponse)
+	if err != nil {
+		return nil, err
+	}
+
+	return apiResponse, nil
+}
+
+func (c *ChatGPTClient) GetMessagesFromThread(threadId string) (map[string]interface{}, error) {
+	req, err := c.newRequest("GET", "/threads/" + threadId + "/messages", nil)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := c.client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	var apiResponse map[string]interface{}
+	err = json.NewDecoder(resp.Body).Decode(&apiResponse)
+	if err != nil {
+		return nil, err
+	}
+
+	return apiResponse, nil
+}
