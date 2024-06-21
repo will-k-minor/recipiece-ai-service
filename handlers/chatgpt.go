@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"os"
+	"fmt"
 	"encoding/json"
 	"net/http"
 	"recipiece-ai-service/clients"
@@ -27,6 +29,20 @@ func CreateThread(w http.ResponseWriter, r *http.Request) {
         http.Error(w, "Failed to create thread with ChatGPT API", http.StatusInternalServerError)
         return
     }
+
+	// Write results to a log file
+	file, err := os.OpenFile("threads.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		http.Error(w, "Failed to open log file", http.StatusInternalServerError)
+		return
+	}
+	defer file.Close()
+
+	logEntry := fmt.Sprintf("Message: %s\nAPI Response: %v\n\n", message, apiResponse)
+	if _, err := file.WriteString(logEntry); err != nil {
+		http.Error(w, "Failed to write to log file", http.StatusInternalServerError)
+		return
+	}
 
     w.Header().Set("Content-Type", "application/json")
     json.NewEncoder(w).Encode(apiResponse)
