@@ -119,6 +119,13 @@ func (c *ChatGPTClient) RunAssistant(threadId string) (map[string]interface{}, e
 	assistantId := os.Getenv("CLAUDE_ASSISTANT_ID")
 	requestBody := map[string]interface{}{
 		"assistant_id": assistantId,
+		"response_format": map[string]string{ "type": "json_object" },
+		"additional_messages": []map[string]string{
+			{
+				"role": "assistant", 
+				"content": "Please give this to me in a JSON format (with no escape characters) that can be consumed by a frontend framework like Svelte or React.",
+			},
+		},
 	}
 
 	req, err := c.newRequest("POST", "/threads/" + threadId + "/runs", requestBody)
