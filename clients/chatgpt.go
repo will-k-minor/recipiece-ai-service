@@ -89,10 +89,10 @@ func (c *ChatGPTClient) RunAssistant(threadId string) (map[string]interface{}, e
 	requestBody := map[string]interface{}{
 		"assistant_id": assistantId,
 		"response_format": map[string]string{"type": "json_object"},
-		"additional_messages": []map[string]string{
+		"additional_messages": []map[string]interface{}{
 			{
-				"role":    "assistant",
-				"content": "Please give this to me in a JSON format (with no escape characters) that can be consumed by a frontend framework like Svelte or React.",
+				"role":    "user",
+				"content": "Give me a response in JSON",
 			},
 		},
 	}
@@ -103,4 +103,24 @@ func (c *ChatGPTClient) RunAssistant(threadId string) (map[string]interface{}, e
 func (c *ChatGPTClient) GetMessagesFromThread(threadId string) (map[string]interface{}, error) {
 	endpoint := "/threads/" + threadId + "/messages"
 	return c.makeRequest("GET", endpoint, nil)
+}
+
+func (c *ChatGPTClient) CancelRun(threadId, runId string) (map[string]interface{}, error) {
+	endpoint := "/threads/" + threadId + "/runs/" + runId + "/cancel"
+	return c.makeRequest("POST", endpoint, nil)
+}
+
+func (c *ChatGPTClient) GetRunDetails(threadId, runId string) (map[string]interface{}, error) {
+	endpoint := "/threads/" + threadId + "/runs/" + runId
+	return c.makeRequest("GET", endpoint, nil)
+}
+
+func (c *ChatGPTClient) SubmitToolOutput(threadId, runId, id, output string) (map[string]interface{}, error) {
+	requestBody := map[string]interface{}{
+		"tool_outputs": []map[string]string{
+			{"tool_call_id": id, "output": output},
+		},
+	}
+	endpoint := "/threads/" + threadId + "/runs/" + runId + "/submit_tool_outputs"
+	return c.makeRequest("POST", endpoint, requestBody)
 }

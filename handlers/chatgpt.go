@@ -101,3 +101,67 @@ func GetMessagesFromThread(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(apiResponse)
 }
+
+func CancelRun(w http.ResponseWriter, r *http.Request) {
+	threadId := chi.URLParam(r, "threadId")
+	runId := chi.URLParam(r, "runId")
+
+	chatClient := clients.NewChatGPTClient()
+	apiResponse, err := chatClient.CancelRun(threadId, runId)
+	if err != nil {
+		http.Error(w, "Failed to cancel run with ChatGPT API", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(apiResponse)
+}
+
+func GetRunDetails(w http.ResponseWriter, r *http.Request) {
+	threadId := chi.URLParam(r, "threadId")
+	runId := chi.URLParam(r, "runId")
+
+	chatClient := clients.NewChatGPTClient()
+	apiResponse, err := chatClient.GetRunDetails(threadId, runId)
+	if err != nil {
+		http.Error(w, "Failed to get run details with ChatGPT API", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(apiResponse)
+}
+
+// Some crappy way to unjam runs when "required_action" appears
+func SubmitTools(w http.ResponseWriter, r *http.Request) {
+	threadId := chi.URLParam(r, "threadId")
+	runId := chi.URLParam(r, "runId")
+	var requestBody map[string]string
+	err := json.NewDecoder(r.Body).Decode(&requestBody)
+	if err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	toolId, exists := requestBody["toolId"];
+	if !exists {
+		http.Error(w, "Tools field is required", http.StatusBadRequest)
+		return
+	}
+
+	output, exists := requestBody["output"];
+	if !exists {
+		http.Error(w, "Output field is required", http.StatusBadRequest)
+		return
+	}
+
+	chatClient := clients.NewChatGPTClient()
+	apiResponse, err := chatClient.SubmitToolOutput(threadId, runId, toolId, output)
+	if err != nil {
+		http.Error(w, "Failed to submit tools with ChatGPT API", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(apiResponse)
+}
