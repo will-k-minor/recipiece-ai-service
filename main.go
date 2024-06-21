@@ -6,15 +6,22 @@ import (
     "github.com/go-chi/chi/v5"
     "github.com/go-chi/chi/v5/middleware"
     "recipiece-ai-service/handlers"
+    "github.com/joho/godotenv"
 )
 
 func main() {
-    router := chi.NewRouter()
-    router.Use(middleware.Logger)
+    err := godotenv.Load()
+    if err != nil {
+        log.Fatalf("Error loading .env file");
+    }
 
-    router.Post("/hello", handlers.HelloHandler)
+    router := chi.NewRouter();
+    router.Use(middleware.Logger);
 
-    log.Fatal(http.ListenAndServe(":8080", router))
+    router.Post("/hello", handlers.HelloHandler);
+    router.Post("/threads/create", handlers.ChatHandler);
+
+    log.Fatal(http.ListenAndServe(":8080", router));
 }
 
 
