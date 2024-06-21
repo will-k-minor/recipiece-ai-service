@@ -4,7 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 	"recipiece-ai-service/clients"
-    "github.com/go-chi/chi/v5"
+
+	"github.com/go-chi/chi/v5"
 )
 
 func CreateThread(w http.ResponseWriter, r *http.Request) {
@@ -32,7 +33,7 @@ func CreateThread(w http.ResponseWriter, r *http.Request) {
     json.NewEncoder(w).Encode(apiResponse)
 }
 
-func SendMessageToThread(w http.ResponseWriter, r *http.Request) {
+func SendMessageToThread(w http.ResponseWriter, r *http.Request) {	
 	var requestBody map[string]string
 	err := json.NewDecoder(r.Body).Decode(&requestBody)
 	if err != nil {
@@ -46,8 +47,8 @@ func SendMessageToThread(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	threadId, exists := requestBody["threadId"]
-	if !exists {
+	threadId := chi.URLParam(r, "threadId")
+	if len(threadId) == 0 {
 		http.Error(w, "Thread ID field is required", http.StatusBadRequest)
 		return
 	}
@@ -71,8 +72,8 @@ func RunAssistant(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	threadId, exists := requestBody["threadId"]
-	if !exists {
+	threadId := chi.URLParam(r, "threadId")
+	if len(threadId) == 0 {
 		http.Error(w, "Message field is required", http.StatusBadRequest)
 		return
 	}

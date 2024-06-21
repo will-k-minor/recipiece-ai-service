@@ -20,8 +20,8 @@ func main() {
 
     router.Post("/hello", handlers.HelloHandler);
     router.Post("/threads/create", handlers.CreateThread);
-    router.Post("/threads/send-message", handlers.SendMessageToThread);
-    router.Post("/threads/run", handlers.RunAssistant);
+    router.Post("/threads/{threadId}/send-message", handlers.SendMessageToThread);
+    router.Post("/threads/{threadId}/run", handlers.RunAssistant);
 
     router.Get("/threads/{threadId}/messages", handlers.GetMessagesFromThread);
 
