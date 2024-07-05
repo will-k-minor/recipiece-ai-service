@@ -113,7 +113,6 @@ func GetMessagesFromThread(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to get messages from thread with ChatGPT API", http.StatusInternalServerError)
 		return
 	}
-
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(apiResponse)
 }

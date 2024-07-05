@@ -5,6 +5,7 @@ import (
     "net/http"
     "github.com/go-chi/chi/v5"
     "github.com/go-chi/chi/v5/middleware"
+    "github.com/go-chi/cors"
     "recipiece-ai-service/handlers"
     "github.com/joho/godotenv"
 )
@@ -16,6 +17,13 @@ func main() {
     }
 
     router := chi.NewRouter();
+    c := cors.New(cors.Options{
+        AllowedOrigins: []string{"http://localhost:5173"},
+        AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+        AllowedHeaders: []string{"Authorization", "Content-Type"},
+        AllowCredentials: true,
+    })
+    router.Use(c.Handler);
     router.Use(middleware.Logger);
 
     router.Post("/hello", handlers.HelloHandler);
