@@ -1,34 +1,46 @@
 package handlers
 
 import (
-	"os"
-	"fmt"
 	"encoding/json"
-	"net/http"
-	"recipiece-ai-service/clients"
+	"fmt"
 	"github.com/go-chi/chi/v5"
+	"net/http"
+	"os"
+	"recipiece-ai-service/clients"
+	"recipiece-ai-service/utils"
 )
 
+func ListThreads(w http.ResponseWriter, r *http.Request) {
+	threads, err := utils.ReadFileLines("threads.txt")
+	if err != nil {
+		http.Error(w, "Something went wrong getting threads", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(threads)
+}
+
 func CreateThread(w http.ResponseWriter, r *http.Request) {
-    var requestBody map[string]string
-    err := json.NewDecoder(r.Body).Decode(&requestBody)
-    if err != nil {
-        http.Error(w, "Invalid request body", http.StatusBadRequest)
-        return
-    }
+	var requestBody map[string]string
+	err := json.NewDecoder(r.Body).Decode(&requestBody)
+	if err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
 
-    message, exists := requestBody["message"]
-    if !exists {
-        http.Error(w, "Message field is required", http.StatusBadRequest)
-        return
-    }
+	message, exists := requestBody["message"]
+	if !exists {
+		http.Error(w, "Message field is required", http.StatusBadRequest)
+		return
+	}
 
-    chatClient := clients.NewChatGPTClient()
-    apiResponse, err := chatClient.CreateThread(message)
-    if err != nil {
-        http.Error(w, "Failed to create thread with ChatGPT API", http.StatusInternalServerError)
-        return
-    }
+	chatClient := clients.NewChatGPTClient()
+	apiResponse, err := chatClient.CreateThread(message)
+	if err != nil {
+		http.Error(w, "Failed to create thread with ChatGPT API", http.StatusInternalServerError)
+		return
+	}
 
 	// Write results to a log file
 	file, err := os.OpenFile("threads.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
@@ -38,17 +50,17 @@ func CreateThread(w http.ResponseWriter, r *http.Request) {
 	}
 	defer file.Close()
 
-	logEntry := fmt.Sprintf("Message: %s\nAPI Response: %v\n\n", message, apiResponse)
+	logEntry := fmt.Sprintf("%v\n", apiResponse["id"])
 	if _, err := file.WriteString(logEntry); err != nil {
 		http.Error(w, "Failed to write to log file", http.StatusInternalServerError)
 		return
 	}
 
-    w.Header().Set("Content-Type", "application/json")
-    json.NewEncoder(w).Encode(apiResponse)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(apiResponse)
 }
 
-func SendMessageToThread(w http.ResponseWriter, r *http.Request) {	
+func SendMessageToThread(w http.ResponseWriter, r *http.Request) {
 	var requestBody map[string]string
 	err := json.NewDecoder(r.Body).Decode(&requestBody)
 	if err != nil {
@@ -158,13 +170,13 @@ func SubmitTools(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	toolId, exists := requestBody["toolId"];
+	toolId, exists := requestBody["toolId"]
 	if !exists {
 		http.Error(w, "Tools field is required", http.StatusBadRequest)
 		return
 	}
 
-	output, exists := requestBody["output"];
+	output, exists := requestBody["output"]
 	if !exists {
 		http.Error(w, "Output field is required", http.StatusBadRequest)
 		return
